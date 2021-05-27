@@ -1,0 +1,26 @@
+---
+- name: Prepare
+  hosts: haproxy-exporter-test
+  pre_tasks:
+    - name: Create prometheus group
+      group:
+        name: prometheus
+        system: true
+        state: present
+  tasks:
+    - name: HAProxy install
+      apt:
+        name: haproxy
+        state: present
+    - name: HAProxy configuration
+      copy:
+        src: haproxy.cfg
+        dest: /etc/haproxy/haproxy.cfg
+        owner: root
+        group: root
+      notify: Reload HAProxy
+  handlers:
+    - name: Reload HAProxy
+      service:
+        name: haproxy
+        state: reloaded
