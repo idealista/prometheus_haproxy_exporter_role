@@ -32,13 +32,7 @@ file:
     exists: true
     filetype: file
 http:
-  http://{{ prometheus_haproxy_ip_listener|default(ansible_default_ipv4.address) }}:9101:
+  http://{{ prometheus_haproxy_ip_listener|default(ansible_default_ipv4.address) }}:9101/metrics:
     status: 200
-## Check if ports are really exposed
-# port:
-# # Check port at IPv6
-# # https://github.com/aelsabbahy/goss/issues/177
-#   tcp6:<port>:
-#     listening: true
-#     ip:
-#     - '::'
+    body:
+      - "haproxy_up 1"
