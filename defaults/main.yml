@@ -1,0 +1,55 @@
+---
+
+## General
+# Version
+haproxy_exporter_version: 0.12.0
+haproxy_exporter_release_system: "linux-{{ haproxy_exporter_arch }}"
+
+# Package URL
+haproxy_exporter_release_name: "haproxy_exporter-{{ haproxy_exporter_version }}.{{ haproxy_exporter_release_system }}"
+haproxy_exporter_package: "{{ haproxy_exporter_release_name }}.tar.gz"
+haproxy_exporter_url: "https://github.com/prometheus/haproxy_exporter/releases/download/v{{ haproxy_exporter_version }}/{{ haproxy_exporter_package }}"
+
+# Package paths
+haproxy_exporter_download_path: /usr/src
+haproxy_exporter_package_path: "{{ haproxy_exporter_download_path }}/{{ haproxy_exporter_package }}"
+haproxy_exporter_src_bin: "{{ haproxy_exporter_download_path }}/{{ haproxy_exporter_release_name }}/{{ haproxy_exporter_exec_name }}"
+
+# Set true to force the download and installation of the binary
+haproxy_exporter_force_reinstall: false
+
+# Installation path
+
+haproxy_exporter_root_path: /opt/haproxy_exporter
+haproxy_exporter_bin_path: "{{ haproxy_exporter_root_path }}/bin"
+haproxy_exporter_skeleton_paths:
+  - "{{ haproxy_exporter_bin_path }}"
+haproxy_exporter_exec_name: haproxy_exporter
+
+## Service options
+# Documentation
+haproxy_exporter_documentation_link: "https://github.com/prometheus/haproxy_exporter"
+
+# Owner
+haproxy_exporter_user: prometheus
+haproxy_exporter_group: prometheus
+
+# Maximum number of files limit
+haproxy_exporter_max_files: 32768
+
+# Start on boot
+haproxy_exporter_service_enabled: True
+# Current state: started, stopped
+haproxy_exporter_service_state: started
+
+haproxy_exporter_service_template_path: haproxy_exporter.service.j2
+# Logs
+# If wanted to output the logs to a file define the following variable
+# More information at https://www.freedesktop.org/software/systemd/man/systemd.exec.html#StandardOutput=
+# haproxy_exporter_log_file: path_of_the_file
+haproxy_exporter_log_output: "{% if haproxy_exporter_log_file is defined %} file:{{ haproxy_exporter_log_file }} {% else %} journal {% endif %}"
+
+haproxy_exporter_private_tmp: true
+haproxy_exporter_options:
+  - haproxy.scrape-uri=unix:/run/haproxy.sock
+  - web.listen-address={{ prometheus_haproxy_ip_listener|default(ansible_default_ipv4.address) }}:9101

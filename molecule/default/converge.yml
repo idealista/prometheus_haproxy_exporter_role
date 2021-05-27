@@ -1,0 +1,5 @@
+---
+- name: Converge
+  hosts: haproxy-exporter-test
+  roles:
+    - role: prometheus_haproxy_exporter_role

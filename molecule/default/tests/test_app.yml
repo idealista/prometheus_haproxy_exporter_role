@@ -1,0 +1,44 @@
+---
+service:
+  haproxy_exporter:
+    enabled: true
+    running: true
+
+user:
+  {{ haproxy_exporter_user }}:
+      exists: true
+      groups:
+        - {{ haproxy_exporter_group }}
+      shell: /usr/sbin/nologin
+
+group:
+  {{ haproxy_exporter_group }}:
+    exists: true
+
+file:
+  {{ haproxy_exporter_root_path }}:
+    owner: {{ haproxy_exporter_user }}
+    group: {{ haproxy_exporter_group }}
+    exists: true
+    filetype: directory
+  {{ haproxy_exporter_bin_path }}:
+    owner: {{ haproxy_exporter_user }}
+    group: {{ haproxy_exporter_group }}
+    exists: true
+    filetype: directory
+  {{ haproxy_exporter_bin_path }}/{{ haproxy_exporter_exec_name }}:
+    owner: {{ haproxy_exporter_user }}
+    group: {{ haproxy_exporter_group }}
+    exists: true
+    filetype: file
+http:
+  http://{{ prometheus_haproxy_ip_listener|default(ansible_default_ipv4.address) }}:9101:
+    status: 200
+## Check if ports are really exposed
+# port:
+# # Check port at IPv6
+# # https://github.com/aelsabbahy/goss/issues/177
+#   tcp6:<port>:
+#     listening: true
+#     ip:
+#     - '::'

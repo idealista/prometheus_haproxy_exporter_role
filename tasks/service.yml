@@ -1,0 +1,17 @@
+---
+
+- name: HAPROXY EXPORTER | Copy systemd unit file configuration
+  template:
+    src: "{{ haproxy_exporter_service_template_path }}"
+    dest: /etc/systemd/system/haproxy_exporter.service
+    mode: 0644
+    owner: root
+    group: root
+  notify: restart haproxy_exporter
+
+- name: HAPROXY EXPORTER | Configuring service
+  systemd:
+    name: haproxy_exporter
+    state: "{{ haproxy_exporter_service_state }}"
+    enabled: "{{ haproxy_exporter_service_enabled }}"
+    daemon_reload: yes

@@ -1,0 +1,71 @@
+---
+
+- name: HAPROXY EXPORTER | Ensure haproxy_exporter group
+  group:
+    name: "{{ haproxy_exporter_group }}"
+    system: true
+    state: present
+
+- name: HAPROXY EXPORTER | Ensure haproxy_exporter user
+  user:
+    name: "{{ haproxy_exporter_user }}"
+    group: "{{ haproxy_exporter_group }}"
+    system: true
+    shell: /usr/sbin/nologin
+    createhome: false
+
+- name: HAPROXY EXPORTER | Ensure skeleton paths
+  file:
+    dest: "{{ item }}"
+    owner: "{{ haproxy_exporter_user }}"
+    group: "{{ haproxy_exporter_group }}"
+    state: directory
+    mode: 0755
+  with_items:
+    - "{{ haproxy_exporter_skeleton_paths }}"
+
+- name: HAPROXY EXPORTER | Ensure skeleton log paths
+  file:
+    dest: "{{ haproxy_exporter_log_path }}"
+    owner: "{{ haproxy_exporter_user }}"
+    group: "{{ haproxy_exporter_group }}"
+    state: directory
+    mode: 0755
+  when: haproxy_exporter_log_file is defined and haproxy_exporter_logrotate_enabled
+
+- name: HAPROXY EXPORTER | Check haproxy_exporter version
+  command: "{{ haproxy_exporter_exec_name }} --version"
+  register: haproxy_exporter_check
+  changed_when: false
+  ignore_errors: true
+  check_mode: no
+
+- name: HAPROXY EXPORTER | Download package
+  get_url:
+    url: "{{ haproxy_exporter_url }}"
+    dest: "{{ haproxy_exporter_package_path }}"
+  when: haproxy_exporter_force_reinstall or haproxy_exporter_check is failed or haproxy_exporter_version not in haproxy_exporter_check.stderr
+
+- name: HAPROXY EXPORTER | Extract downloaded package
+  unarchive:
+    src: "{{ haproxy_exporter_package_path }}"
+    dest: "{{ haproxy_exporter_download_path }}"
+    remote_src: True
+  when: haproxy_exporter_force_reinstall or haproxy_exporter_check is failed or haproxy_exporter_version  not in haproxy_exporter_check.stderr
+
+- name: HAPROXY EXPORTER | Copy binary
+  copy:
+    src: "{{ haproxy_exporter_src_bin }}"
+    dest: "{{ haproxy_exporter_bin_path }}/{{ haproxy_exporter_exec_name }}"
+    owner: "{{ haproxy_exporter_user }}"
+    group: "{{ haproxy_exporter_group }}"
+    remote_src: True
+    mode: 0755
+  when: haproxy_exporter_force_reinstall or haproxy_exporter_check is failed or haproxy_exporter_version not in haproxy_exporter_check.stderr
+
+- name: HAPROXY EXPORTER | Link binary
+  file:
+    src: "{{ haproxy_exporter_bin_path }}/{{ haproxy_exporter_exec_name }}"
+    dest: "/usr/bin/{{ haproxy_exporter_exec_name }}"
+    state: link
+  when: haproxy_exporter_force_reinstall or haproxy_exporter_check is failed or haproxy_exporter_version not in haproxy_exporter_check.stderr

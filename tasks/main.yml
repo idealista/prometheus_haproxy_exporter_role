@@ -1,0 +1,11 @@
+---
+
+- name: HAPROXY EXPORTER | Install
+  include: install.yml
+  tags:
+    - haproxy_exporter_install
+
+- name: HAPROXY EXPORTER | Service
+  include: service.yml
+  tags:
+    - haproxy_exporter_service

@@ -1,0 +1,7 @@
+---
+
+- name: restart haproxy_exporter
+  systemd:
+    name: haproxy_exporter
+    state: restarted
+  when: haproxy_exporter_service_state != 'stopped'

@@ -1,0 +1,24 @@
+{{ ansible_managed | comment }}
+[Unit]
+Description=haproxy_exporter
+Documentation={{ haproxy_exporter_documentation_link }}
+Requires=network-online.target
+After=network-online.target
+
+[Service]
+PrivateTmp={{ haproxy_exporter_private_tmp }}
+User={{ haproxy_exporter_user }}
+Group={{ haproxy_exporter_group }}
+RuntimeDirectory=haproxy_exporter
+LimitNOFILE={{ haproxy_exporter_max_files }}
+
+ExecStart={{ haproxy_exporter_bin_path }}/{{ haproxy_exporter_exec_name }} {% for option in haproxy_exporter_options %}{% if option %}--{{ option }} {% endif %}{% endfor %}
+
+StandardOutput={{ haproxy_exporter_log_output }}
+StandardError={{ haproxy_exporter_log_output }}
+ExecReload=/bin/kill -HUP $MAINPID
+KillSignal=SIGTERM
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
