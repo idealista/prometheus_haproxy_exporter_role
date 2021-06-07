@@ -40,7 +40,7 @@ Create or add to your roles dependency file (e.g requirements.yml):
 
 ```
 - src: idealista.prometheus_haproxy_exporter_role
-  version: 1.0.0
+  version: 1.0.1
   name: prometheus_haproxy_exporter_role
 ```
 
